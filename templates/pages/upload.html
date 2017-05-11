@@ -1,0 +1,117 @@
+{% extends 'index.html' %}
+{% load staticfiles %}
+{% block css %}
+    <link href="{% static "assets/plugins/sweetalert/sweetalert.css" %}" rel="stylesheet"/>
+{% endblock %}
+{% block content %}
+    <div class="card">
+        <div class="header">
+            <h2>
+                Basic Card Title
+                <small>Description text here...</small>
+            </h2>
+            <ul class="header-dropdown m-r--5">
+                <li class="dropdown">
+                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                       aria-haspopup="true" aria-expanded="false">
+                        <i class="material-icons">more_vert</i>
+                    </a>
+                    <ul class="dropdown-menu pull-right">
+                        <li><a href="javascript:void(0);" class=" waves-effect waves-block">Action</a></li>
+                        <li><a href="javascript:void(0);" class=" waves-effect waves-block">Another action</a></li>
+                        <li><a href="javascript:void(0);" class=" waves-effect waves-block">Something else here</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="body">
+            <form action="#" class="dropzone" id="dropzone_multiple"></form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static "assets/plugins/sweetalert/sweetalert.min.js" %}"></script>
+    <script src="{% static "assets/js/uploaders/dropzone.min.js" %}"></script>
+    <script>
+        function confirmUpload() {
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this imaginary file!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes, delete it!",
+                closeOnConfirm: false
+            }, function (isConfirm) {
+                if (!isConfirm) {
+
+                }
+            });
+        }
+        Dropzone.autoDiscover = false;
+        Dropzone.options.myDropzone = {
+
+            // Prevents Dropzone from uploading dropped files immediately
+            autoProcessQueue: false,
+
+            init: function () {
+                var submitButton = document.querySelector("#submit-all")
+                myDropzone = this; // closure
+
+                submitButton.addEventListener("click", function () {
+                    myDropzone.processQueue(); // Tell Dropzone to process all queued files.
+                });
+
+                // You might want to show the submit button only when
+                // files are dropped here:
+                this.on("addedfile", function () {
+                    // Show submit button here and/or inform user to click it.
+                });
+
+            }
+        };
+        $("#dropzone_multiple").dropzone({
+            url: "/basic-upload/",
+            paramName: "file", // The name that will be used to transfer the file
+            dictDefaultMessage: 'Arrastra los archivos AQUI! <span>o haz CLICK</span>',
+            maxFilesize: 0.1, // MB
+            init: function () {
+                this.on("success", function (file, responseText) {
+                    console.log(file, responseText);
+                });
+                this.on("addedfile", function (file) {
+                    var _this = this;
+                });
+            },
+            confirm: function (question, accepted, rejected) {
+                console.log(question, accepted, rejected)
+            },
+            accept: function (file, done) {
+                var _this = this;
+                swal({
+                    title: "Esta seguro de subir el archivo?",
+                    text: "Si acepta, el archivo sera subido al servidor",
+                    type: "info",
+                    showCancelButton: true,
+                    cancelButtonText: "No, cancelar",
+                    confirmButtonText: "Si, estoy seguro",
+                    closeOnConfirm: true
+                }, function (isConfirm) {
+                    if (!isConfirm) {
+                        _this.removeFile(file);
+                        return false;
+                    } else {
+                        done();
+                    }
+                });
+            },
+            addRemoveLinks: true,
+            removedfile: function (file) {
+                var name = file.name;
+                var _ref;
+                return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+            },
+        });
+    </script>
+{% endblock %}
